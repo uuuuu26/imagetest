@@ -69,12 +69,17 @@ int main()
 	cols = out.cols;
 	int cnt_row, cnt_cols, i;
 	uchar *p;
+	
 	int quali[345] = { 0 };
-	int devide[345] = { 0 };
+	//int devide[345] = { 0 };
+	int *devide = new int[cols]; 
 	list <int>::iterator cut_cnt;
 	list<int>cut;
-	char* name[7] = { "cut0","cut1", "cut2", "cut3", "cut4", "cut5", "cut6" };
 	int cut_confirmed[10] = { 0 };
+	for (i = 0; i < rows; i++) {
+		quali[i] = 0;
+		devide[i] = 0;
+	}
 	for (cnt_row = 0; cnt_row < rows; cnt_row++) {
 		p = out.ptr<uchar>(cnt_row);
 		for (cnt_cols = 0; cnt_cols < cols; cnt_cols++) {
@@ -90,7 +95,7 @@ int main()
 	}
 	devide[cols-1] = devide[0] = 1;
 	//imshow("2", out);
-	waitKey(50);
+	//waitKey(50);
 	for (cnt_cols = 0; cnt_cols < cols; cnt_cols++) {
 		if (devide[cnt_cols] == 1)devide[cnt_cols] = 0;
 		else break;
@@ -109,8 +114,7 @@ int main()
 			cut.push_back((j + i) / 2 + 1);
 		}
 	}
-	i = 0;
-	for (cut_cnt = cut.begin(); cut_cnt != cut.end(); cut_cnt++) i++;
+
 
 	//ÌÝ¶È±ßÔµËã·¨
 	Sobel(out, grad_x, CV_16S, 1, 0, 1, 1, 1, BORDER_DEFAULT);
@@ -126,29 +130,29 @@ int main()
 			p[cnt_cols] = 255 - p[cnt_cols];
 		}
 	}
-
-
+	//count list
+	i = 0;
+	for (cut_cnt = cut.begin(); cut_cnt != cut.end(); cut_cnt++) i++;
 	Mat img2_cut[7];
 	//for(i=0;i<7;i++){img2_cut[i] = Mat(img2_after.rows, img2_after.cols, CV_8UC1);}
-	
+
 	cut.push_front(0);
 	cut.push_back(344);
 	i = -1;
 	for (cut_cnt = cut.begin(); cut_cnt != cut.end(); cut_cnt++) {
 		i++;
 		cut_confirmed[i] = *cut_cnt;
-	}	
-	for (i = 1; cut_confirmed[i] != 0; i++) {
-		img2_after(Rect(cut_confirmed[i - 1], 0, (cut_confirmed[i] - cut_confirmed[i - 1]), rows)).copyTo(img2_cut[i-1]);
-		
-	//	img2_after(Rect(cut_confirmed[i-1], 0, cut_confirmed[i]- cut_confirmed[i-1], cols)).copyTo(img2_cut[i]);
 	}
+	for (i = 1; cut_confirmed[i] != 0; i++) {
+		img2_after(Rect(cut_confirmed[i - 1], 0, (cut_confirmed[i] - cut_confirmed[i - 1]), rows)).copyTo(img2_cut[i - 1]);
+
+		//	img2_after(Rect(cut_confirmed[i-1], 0, cut_confirmed[i]- cut_confirmed[i-1], cols)).copyTo(img2_cut[i]);
+	}
+	//show the cutted image
+	char* name[7] = { "cut0","cut1", "cut2", "cut3", "cut4", "cut5", "cut6" };
 	for (i = 1; cut_confirmed[i] != 0; i++)	imshow(name[i-1], img2_cut[i-1]);
 
 
-
-
-
-
 	waitKey(0);
+	delete[]  devide;
 }
